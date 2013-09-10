@@ -1,127 +1,103 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                  "http://www.w3.org/TR/html4/strict.dtd">
+    <html>
+      <head>
+      <link rel="stylesheet" href="assets/css/jquery.mobile-1.0.min.css" /
+        <title>Media Example</title>
 
-    <title>jquery.mb.audio</title>
-    <link href="jquery.mobile-1.0.min.css" rel="stylesheet" type="text/css"/>
-    <script src="jquery-1.6.4.min.js" type="text/javascript"></script>
-    <script src="jquery.mobile-1.0.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="jquery.mb.audio.js"></script>
-    <script type="text/javascript">
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8">
 
-        /*
-         * DEFINE SOUNDS
-         */
-        $.mbAudio.sounds = {
+        // Wait for Cordova to load
+        //
+        document.addEventListener("deviceready", onDeviceReady, false);
 
-            backgroundSprite: {
-                id    : "Min-yeketim",
-                mp3   : "Min-yeketim.mp3",
-                //example of sprite
-                sprite: {
-                    intro     : {id: "intro", start: 80, end: 116.975, loop: true},
-                    levelIntro: {id: "levelIntro", start: 60, end: 77.470, loop: true},
-                    tellStory : {id: "tellStory", start: 80, end: 116.975, loop: true},
-                    level1    : {id: "level1", start: 5, end: 13, loop: true},
-                    level2    : {id: "level2", start: 40, end: 56, loop: true},
-                    level3    : {id: "level3", start: 120, end: 136.030, loop: true}
-                }
-            },
-        };
-
-
-        function audioIsReady() {
-
-            setTimeout(function () {
-                $('#buttons').fadeIn();
-                $("#loading").hide();
-
-                if (isStandAlone || !isDevice)
-                    $.mbAudio.play('backgroundSprite', "level2");
-
-            }, 3000);
-
+        // Cordova is ready
+        //
+        function onDeviceReady() {
+            playAudio("http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3");
         }
 
-        $(document).on("initAudio", function () {
+        // Audio player
+        //
+        var my_media = null;
+        var mediaTimer = null;
 
-            //otherwise sound is initialized on the first tap loosing time and UX
-            $.mbAudio.pause('effectSprite', audioIsReady);
+        // Play audio
+        //
+        function playAudio(src) {
+            // Create Media object from src
+            my_media = new Media(src, onSuccess, onError);
 
+            // Play audio
+            my_media.play();
 
-            $('#start').hide();
-            $("#loading").show();
-        });
-
-    </script>
-
-    <style>
-        body {
-            padding: 50px;
+            // Update my_media position every second
+            if (mediaTimer == null) {
+                mediaTimer = setInterval(function() {
+                    // get my_media position
+                    my_media.getCurrentPosition(
+                        // success callback
+                        function(position) {
+                            if (position > -1) {
+                                setAudioPosition((position) + " sec");
+                            }
+                        },
+                        // error callback
+                        function(e) {
+                            console.log("Error getting pos=" + e);
+                            setAudioPosition("Error: " + e);
+                        }
+                    );
+                }, 1000);
+            }
         }
 
-        button {
-            display: block;
-            margin: 30px 10px;
-            padding: 10px;;
-
+        // Pause audio
+        // 
+        function pauseAudio() {
+            if (my_media) {
+                my_media.pause();
+            }
         }
 
-            /*
-                    button.disabled{
-                        opacity:.3;
-
-                    }
-            */
-
-    </style>
-
-</head>
-<body>
-<a href="https://github.com/pupunzi/jquery.mb.audio"><img
-        style="width:100px; position: absolute; top: 20px; right: 20px; border: 0; z-index: 1000"
-        src="http://upload.wikimedia.org/wikipedia/commons/b/b3/GitHub.svg" alt="Fork me on GitHub"></a>
-
-<h2>jquery.mb.audio API: Using the "direct play" and the "sprite" features.</h2>
-
-<p>To invoke the "play" event for a specific sprite:<br>
-    <b>$.mbAudio.play(audio, sprite)</b></p>
-
-<div id="start">
-    <p>This button is needed to initialize audio (see the table in the documentation) [todo: wiki].</p>
-    <script>
-        if (isiOs || !isDevice) {
-            document.write("<p>This button will also initialize the effects sprite and will play the background sprite (only iOS).</p>")
+        // Stop audio
+        // 
+        function stopAudio() {
+            if (my_media) {
+                my_media.stop();
+            }
+            clearInterval(mediaTimer);
+            mediaTimer = null;
         }
-    </script>
-    <button style="cursor:pointer" onclick="$(document).trigger('initAudio')" data-role="button">Lets start</button>
-</div>
-<div id="loading" style="display: none;">... loading ...</div>
 
-<div id="buttons" style="display: none;">
-    <p>The three buttons below play sounds from the same audio file (sounds/bgndsSprite .mp3 or .ogg)</b></p>
-    <button style="cursor:pointer" onmousedown="$.mbAudio.play('effectSprite', 'great')" data-role="button">play effect 1</button>
-    <button style="cursor:pointer" onmousedown="$.mbAudio.play('effectSprite', 'wow')" data-role="button">play effect 2</button>
-    <button id="playSound1" style="cursor:pointer" onmousedown="$.mbAudio.play('effectSprite', 'streak')" data-role="button">play effect 3
-        (it loops 3 times)
-    </button>
+        // onSuccess Callback
+        //
+        function onSuccess() {
+            console.log("playAudio():Audio Success");
+        }
 
-    <div id="bgndControls" style="display: none">
-        <button style="cursor:pointer" onclick="$.mbAudio.pause('backgroundSprite')" data-role="button">stop background sound</button>
-        <button style="cursor:pointer" onclick="$.mbAudio.play('backgroundSprite','level2')" data-role="button">start background sound
-        </button>
-    </div>
+        // onError Callback 
+        //
+        function onError(error) {
+            alert('code: '    + error.code    + '\n' + 
+                  'message: ' + error.message + '\n');
+        }
 
-    <script>
-        if (isStandAlone || !isDevice)
-            $("#bgndControls").show();
-    </script>
-    <br>
-    <a href="demo_queue.html">See also the "Queue" demo</a>
-</div>
-</body>
-</html>
+        // Set audio position
+        // 
+        function setAudioPosition(position) {
+            document.getElementById('audio_position').innerHTML = position;
+        }
+
+        </script>
+      </head>
+      <body>
+        <a href="#" class="btn large" onclick="playAudio('http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3');">Play Audio</a>
+        <a href="#" class="btn large" onclick="pauseAudio();">Pause Playing Audio</a>
+        <a href="#" class="btn large" onclick="stopAudio();">Stop Playing Audio</a>
+        <p id="audio_position"></p>
+        <script type="text/javascript" src="assets/js/jquery-1.6.4.min.js"></script>
+        <script type="text/javascript" src="assets/js/jquery.mobile-1.0.min.js"></script>
+      </body>
+    </html>
