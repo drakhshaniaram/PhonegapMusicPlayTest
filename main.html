@@ -17,11 +17,11 @@ function getPhoneGapPath() {
 alert(getPhoneGapPath() + 'Min-yeketim.mp3');
 
 function playAudio(src) {
-var media = new Media(src, success, error_error);
+var media = new Media(src, function(){}, function(){alert("some errors")});
 media.play();
 }
 
-alert(getPhoneGapPath() + 'Min-yeketim.mp3');
+alert(getPhoneGapPath() + 'minyeketim.mp3');
 </script>
 <div id="path"></div>
   </body>
