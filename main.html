@@ -1,36 +1,28 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Notification Example</title>
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <title>Music</title>
   </head>
+	<script src="phonegap.js"></script>
   <body>
-  	 <h1>Playing Audio</h1>
-<button onclick="playAudio('Min-yeketim.mp3')">Play Some Audio</button>
- 
-<script src="phonegap.js"></script>
+
 <script>
+function getPhoneGapPath() {
+    var path = window.location.pathname;
+   // var path = '/android_asset/www/index.html'; //delete this line! test only
+    path = path.substr( path, path.length - 10 );
+    return 'file://' + path + '/';
+};
+
+alert(getPhoneGapPath() + 'Min-yeketim.mp3');
+
 function playAudio(src) {
-if (device.platform == 'Android') {
-src = '/android_asset/www/' + src;
-}
- 
 var media = new Media(src, success, error_error);
- 
 media.play();
 }
- 
-function success() {
-// ignore
-}
- 
-function error_error(e) {
-alert('great error');
-alert(e.message);
-}
+
+alert(getPhoneGapPath() + 'Min-yeketim.mp3');
 </script>
-    <p><a href="#" onclick="showAlert(); return false;">Show Alert</a></p>
-    <p><a href="#" onclick="playBeep(); return false;">Play Beep</a></p>
-    <p><a href="#" onclick="vibrate(); return false;">Vibrate</a></p>
+<div id="path"></div>
   </body>
 </html>
